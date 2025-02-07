@@ -1,0 +1,39 @@
+# Channels and topics to monitor with topic names and types
+CHANNELS_TO_MONITOR = {
+    -1002450316172: {  # Channel ID
+        13: {  # Topic ID
+            "name": "KOL's",
+            "type": "Wallet"
+        },
+        2215: {
+            "name": "Insider + Whales", 
+            "type": "Wallet"
+        },
+        15: {
+            "name": "100-80% Win Rate",
+            "type": "Wallet"
+        },
+        7: {
+            "name": "Hedge Funds/Market Makers",
+            "type": "Wallet"
+        },
+        9: {
+            "name": "Notable Token Deployers",
+            "type": "Wallet"
+        },
+        3: {
+            "name": "Instituional Wallets",
+            "type": "Wallet"
+        }
+    },
+    -1002200747313: {
+        9012: {
+            "name": "Alive Alerts",
+            "type": "Filter Alerts"
+        },
+        3456: {
+            "name": "Cabal Alerts",
+            "type": "Filter Alerts"
+        }
+    }
+}
