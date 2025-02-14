@@ -124,6 +124,6 @@ async def main():
     # Run until disconnected
     await client.run_until_disconnected()
 
-if __name__ == "__main__":
-    # Run the main function
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     # Run the main function
+#     asyncio.run(main())
