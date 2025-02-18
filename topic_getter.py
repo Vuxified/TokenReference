@@ -3,9 +3,8 @@ import json
 import os
 import asyncio
 
-# Remove these as they're not needed here
-# api_id = REDACTED  
-# api_hash = "REDACTED"
+api_id = REDACTED  
+api_hash = "REDACTED"
 # client = TelegramClient('session_name', api_id, api_hash)
 
 async def get_channel_topics(channel_id, client):
@@ -34,3 +33,13 @@ async def get_channel_topics(channel_id, client):
     except Exception as e:
         print(f"Error getting topics: {e}")
         return []
+    
+
+client = TelegramClient('session_name', api_id, api_hash)
+    
+async def main():
+    await client.start()
+    await get_channel_topics(-1002450316172, client)
+if __name__ == "__main__":
+    # Run the main function
+    asyncio.run(main())
