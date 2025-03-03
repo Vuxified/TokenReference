@@ -1,13 +1,9 @@
-# Ignore environment variables file
 .env
 
-# Ignore Python cache files
 __pycache__/
 *.py[cod]
 
-# Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
-# Ignore other files or directories you want to exclude
 *.log
 *.sqlite3

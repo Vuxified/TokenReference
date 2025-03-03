@@ -6,15 +6,13 @@ import os
 import asyncio
 from topic_getter import get_channel_topics
 import csv
-from dotenv import load_dotenv  # Import dotenv
+from dotenv import load_dotenv  
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Get credentials from environment variables
 api_id = os.getenv("API_ID")
 api_hash = os.getenv("API_HASH")
-ALERT_GROUP = int(os.getenv("ALERT_GROUP"))  # Convert to int if necessary
+ALERT_GROUP = int(os.getenv("ALERT_GROUP"))  
 MIN_CHANNELS_FOR_ALERT = 2
 Topic_Wallet_Tracker = 247
 Topic_Testing = 826
@@ -190,7 +188,7 @@ def extract_sell_data(message, topic_id):
         PnL:.*?          # Match 'PnL:' and any characters (non-greedy) THANKS CHATGPT
         \*\*([+-]?\d+\.\d+)\*\*  # Capture the PnL value (e.g., +3.39 or -0.7)
         \s+SOL.*?        # Match 'SOL' and any characters (non-greedy)
-        \(([+-]?\d+\.\d+%)\)  # Capture the PnL percentage (e.g., +96.79% or -6.98%)
+        \(([+-]?\d+\.\d+%)\)  # Capture the PnL percentage
     """, message, re.VERBOSE)
 
     if pnl_result:
@@ -198,7 +196,7 @@ def extract_sell_data(message, topic_id):
         pnl_percentage = pnl_result.group(2)
     else:
         pnl_value = "0"
-        pnl_percentage = "0%"  # Default values or handle as needed
+        pnl_percentage = "0%" 
 
     return {
         'topic_name': topic_name,
