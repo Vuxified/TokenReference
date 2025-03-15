@@ -4,15 +4,15 @@ from datetime import datetime
 import json
 import os
 import asyncio
-from topic_getter import get_channel_topics
+from src.test.topic_getter import get_channel_topics
 import csv
-from dotenv import load_dotenv  
+from dotenv import load_dotenv
 
 load_dotenv()
 
 api_id = os.getenv("API_ID")
 api_hash = os.getenv("API_HASH")
-ALERT_GROUP = int(os.getenv("ALERT_GROUP"))  
+ALERT_GROUP = int(os.getenv("ALERT_GROUP"))
 MIN_CHANNELS_FOR_ALERT = 2
 Topic_Wallet_Tracker = 247
 Topic_Testing = 826
@@ -58,6 +58,7 @@ if not os.path.exists(ERROR_LOG_FILE):
         writer = csv.writer(f)
         writer.writerow(['Timestamp', 'Error Type', 'Message', 'Details'])
 
+
 async def log_error(error_type, message, details=""):
     """Log error to CSV file"""
     with open(ERROR_LOG_FILE, 'a', newline='', encoding='utf-8') as f:
@@ -68,24 +69,29 @@ async def log_error(error_type, message, details=""):
             message,
             details
         ])
-   
+
 # Initialize client before main()
-#Note to self: use variable_name.stringify() to pretty print
+# Note to self: use variable_name.stringify() to pretty print
 client = TelegramClient('session_name', api_id, api_hash)
-    
+
+
 def initialize_cross_ref():
     """Initialize the cross reference dictionary."""
     return {}
 
+
 def extract_buy_data(message, topic_id):
     """Extract relevant data from a buy message."""
     topic_name = bugsie_channel['topics_id'].get(topic_id, '')
-    contract_address = re.search(r'`([1-9A-HJ-NP-Za-km-z]{32,44})`', message).group(1)
+    contract_address = re.search(
+        r'`([1-9A-HJ-NP-Za-km-z]{32,44})`', message).group(1)
     wallet_name = re.search(r'\*\*([^*]+)\*\*', message).group(1)
     token_name = re.search(r'\[BUY ([^\]]+)\]', message).group(1)
-    sol_amount = float(re.search(r'swapped \*\*([\d.]+)\*\* \[', message).group(1))
+    sol_amount = float(
+        re.search(r'swapped \*\*([\d.]+)\*\* \[', message).group(1))
     market_cap = re.search(r'MC\**:\s*(\$[\d.]+[KMB])', message).group(1)
-    holdings_percent = float(re.search(r'Holds: .+? \(([\d.]+)%\)', message).group(1))
+    holdings_percent = float(
+        re.search(r'Holds: .+? \(([\d.]+)%\)', message).group(1))
 
     return {
         'topic_name': topic_name,
@@ -96,6 +102,7 @@ def extract_buy_data(message, topic_id):
         'market_cap': market_cap,
         'holdings_percent': holdings_percent
     }
+
 
 async def process_buy_message(data, cross_ref):
     """Process a buy message and update cross_ref."""
@@ -145,7 +152,8 @@ async def process_buy_message(data, cross_ref):
         'topic_name': topic_name
     }
 
-    cross_ref[contract_address]['wallets'][wallet_name]['buys'].append(buy_data)
+    cross_ref[contract_address]['wallets'][wallet_name]['buys'].append(
+        buy_data)
     cross_ref[contract_address]['wallets'][wallet_name]['total_sol_bought'] += sol_amount
     cross_ref[contract_address]['wallets'][wallet_name]['total_buys'] += 1
 
@@ -155,10 +163,13 @@ async def process_buy_message(data, cross_ref):
     if cross_ref[contract_address]['total_wallets'] >= MIN_CHANNELS_FOR_ALERT:
         await send_cross_reference_update(contract_address, cross_ref)
 
+
 def extract_sell_data(message, topic_id):
     """Extract relevant data from a sell message."""
-    topic_name = bugsie_channel['topics_id'].get(topic_id, 'Could not find topic name')
-    contract_address_match = re.search(r'`([1-9A-HJ-NP-Za-km-z]{32,44})`', message)
+    topic_name = bugsie_channel['topics_id'].get(
+        topic_id, 'Could not find topic name')
+    contract_address_match = re.search(
+        r'`([1-9A-HJ-NP-Za-km-z]{32,44})`', message)
 
     if contract_address_match:
         contract_address = contract_address_match.group(1)
@@ -168,10 +179,12 @@ def extract_sell_data(message, topic_id):
 
     wallet_name = re.search(r"🔹\[\*\*(.*?)\*\*\]", message).group(1)
     token_name = re.search(r'\[SELL ([^\]]+)\]', message).group(1)
-    marketcap_pattern = re.search(r"\*\*MC\*\*:\s*(\$\d+\.?\d*[KMB]?)", message).group(1)
+    marketcap_pattern = re.search(
+        r"\*\*MC\*\*:\s*(\$\d+\.?\d*[KMB]?)", message).group(1)
 
     # Check for solana_sold_pattern with error handling
-    solana_sold_pattern_match = re.search(r"for\s+\*\*([\d,]+\.\d+)\*\*\s+\[\*\*SOL\*\*", message)
+    solana_sold_pattern_match = re.search(
+        r"for\s+\*\*([\d,]+\.\d+)\*\*\s+\[\*\*SOL\*\*", message)
     if solana_sold_pattern_match:
         solana_sold_pattern = solana_sold_pattern_match.group(1)
     else:
@@ -196,7 +209,7 @@ def extract_sell_data(message, topic_id):
         pnl_percentage = pnl_result.group(2)
     else:
         pnl_value = "0"
-        pnl_percentage = "0%" 
+        pnl_percentage = "0%"
 
     return {
         'topic_name': topic_name,
@@ -209,6 +222,7 @@ def extract_sell_data(message, topic_id):
         'pnl_value': pnl_value,
         'pnl_percentage': pnl_percentage
     }
+
 
 def process_sell_message(data, cross_ref):
     """Process a sell message and update cross_ref."""
@@ -261,8 +275,10 @@ def process_sell_message(data, cross_ref):
         'topic_name': topic_name
     }
 
-    cross_ref[contract_address]['wallets'][wallet_name]['sells'].append(sell_data)
-    cross_ref[contract_address]['wallets'][wallet_name]['total_sol_sold'] += float(solana_sold_pattern)
+    cross_ref[contract_address]['wallets'][wallet_name]['sells'].append(
+        sell_data)
+    cross_ref[contract_address]['wallets'][wallet_name]['total_sol_sold'] += float(
+        solana_sold_pattern)
     cross_ref[contract_address]['wallets'][wallet_name]['total_sells'] += 1
 
     if sold_percentage_pattern == "100%":
@@ -273,6 +289,7 @@ def process_sell_message(data, cross_ref):
             del cross_ref[contract_address]
 
     print(f"Processed sell: {wallet_name} sold {token_name}")
+
 
 async def send_cross_reference_update(contract_address, cross_ref):
     """Send a cross-reference update message to the Telegram group."""
@@ -310,6 +327,7 @@ async def send_cross_reference_update(contract_address, cross_ref):
         reply_to=Topic_Testing
     )
 
+
 async def handle_new_message(event, cross_ref):
     """Handle new messages and process buy/sell events."""
     try:
@@ -335,7 +353,8 @@ async def handle_new_message(event, cross_ref):
                         await send_cross_reference_update(sell_data['contract_address'], cross_ref)
 
             else:
-                print(f"Error: Please check what happened with this event: {message}")
+                print(
+                    f"Error: Please check what happened with this event: {message}")
 
             print(json.dumps(cross_ref, indent=2, ensure_ascii=False, default=str))
 
@@ -353,13 +372,15 @@ async def handle_new_message(event, cross_ref):
 
         await log_error(
             "Message Processing Error",
-            event.message.text if hasattr(event, 'message') else "No message text",
+            event.message.text if hasattr(
+                event, 'message') else "No message text",
             error_traceback
         )
 
+
 async def main():
     await client.start()
-    cross_ref = initialize_cross_ref() 
+    cross_ref = initialize_cross_ref()
     print("Starting coin and wallet tracking bot...")
 
     @client.on(events.NewMessage(chats=[-1002450316172, -1002438244257]))
