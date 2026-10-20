@@ -7,8 +7,8 @@ import asyncio
 
 
 
-api_id = REDACTED  
-api_hash = "REDACTED"  
+api_id = os.getenv("API_ID")
+api_hash = os.getenv("API_HASH")  
 
 BOTS_TO_MONITOR = {
     "@gem_tools_calls": {

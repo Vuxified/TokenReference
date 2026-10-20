@@ -7,3 +7,7 @@ __pycache__/
 
 *.log
 *.sqlite3
+*.session
+*.session-journal
+.DS_Store
+src/main/logs/
